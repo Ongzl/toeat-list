@@ -56,7 +56,7 @@ body {
     @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-line bg-card px-4 font-medium active:opacity-80 disabled:opacity-50;
   }
   .btn-danger {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-danger px-4 font-medium text-danger active:opacity-80;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-danger px-4 font-medium text-danger active:opacity-80 disabled:opacity-50;
   }
   .input {
     @apply min-h-11 w-full rounded-xl border border-line bg-card px-3 text-base outline-none focus:border-accent;

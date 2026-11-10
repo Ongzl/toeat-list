@@ -1,21 +1,25 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { friendlyError, type ActionState } from "@/lib/action-state";
 import { requireAdmin } from "@/lib/auth";
 
-export async function addMember(fd: FormData) {
+export async function addMember(_prev: ActionState, fd: FormData): Promise<ActionState> {
   const { supabase } = await requireAdmin();
   const email = String(fd.get("email") ?? "").trim().toLowerCase();
   const displayName = String(fd.get("display_name") ?? "").trim();
-  if (!email || !displayName) throw new Error("Email and name are required");
+  if (!email || !displayName) return { error: "Enter both a name and an email." };
+
   const { error } = await supabase.from("members").insert({ email, display_name: displayName });
-  if (error) throw error;
+  if (error) return { error: friendlyError(error, `${email} is already on the list.`) };
   revalidatePath("/members");
+  return { ok: true };
 }
 
-export async function removeMember(email: string) {
+export async function removeMember(email: string): Promise<ActionState> {
   const { supabase } = await requireAdmin();
   const { error } = await supabase.from("members").delete().eq("email", email);
-  if (error) throw error;
+  if (error) return { error: friendlyError(error) };
   revalidatePath("/members");
+  return { ok: true };
 }

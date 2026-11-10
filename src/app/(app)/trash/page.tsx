@@ -1,3 +1,4 @@
+import ActionForm from "@/components/ActionForm";
 import SubmitButton from "@/components/SubmitButton";
 import { requireMember } from "@/lib/auth";
 import type { Place } from "@/lib/types";
@@ -25,11 +26,11 @@ export default async function Trash() {
                 <p className="font-medium">{p.name}</p>
                 <p className="text-xs text-muted">Deleted {new Date(p.deleted_at!).toLocaleDateString()}</p>
               </div>
-              <form action={restorePlace.bind(null, p.id)}>
+              <ActionForm action={restorePlace.bind(null, p.id)}>
                 <SubmitButton className="btn-secondary text-sm" pendingText="…">
                   Restore
                 </SubmitButton>
-              </form>
+              </ActionForm>
             </li>
           ))}
         </ul>

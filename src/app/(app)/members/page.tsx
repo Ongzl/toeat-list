@@ -1,4 +1,4 @@
-import ConfirmButton from "@/components/ConfirmButton";
+import ActionForm from "@/components/ActionForm";
 import SubmitButton from "@/components/SubmitButton";
 import { requireAdmin } from "@/lib/auth";
 import type { Member } from "@/lib/types";
@@ -25,23 +25,48 @@ export default async function Members() {
               </p>
             </div>
             {m.email !== me.email && (
-              <form action={removeMember.bind(null, m.email)}>
-                <ConfirmButton message={`Remove ${m.display_name}? Their ratings stay.`} className="btn-danger text-sm">
+              <ActionForm action={removeMember.bind(null, m.email)}>
+                <SubmitButton
+                  className="btn-danger text-sm"
+                  pendingText="Removing…"
+                  confirm={`Remove ${m.display_name}? Their ratings stay.`}
+                >
                   Remove
-                </ConfirmButton>
-              </form>
+                </SubmitButton>
+              </ActionForm>
             )}
           </li>
         ))}
       </ul>
 
-      <form action={addMember} className="card flex flex-col gap-3 p-4">
+      <ActionForm action={addMember} resetOnSuccess className="card flex flex-col gap-3 p-4">
         <h2 className="font-semibold">Add someone</h2>
-        <input name="display_name" required placeholder="Name (e.g. Aunty May)" className="input" />
-        <input name="email" type="email" required placeholder="Their Google / email address" className="input" />
+        <label className="label" htmlFor="display_name">
+          Name
+        </label>
+        <input
+          id="display_name"
+          name="display_name"
+          required
+          maxLength={60}
+          placeholder="e.g. Aunty May"
+          className="input"
+        />
+        <label className="label" htmlFor="member_email">
+          Email
+        </label>
+        <input
+          id="member_email"
+          name="email"
+          type="email"
+          required
+          maxLength={254}
+          placeholder="Their Google / email address"
+          className="input"
+        />
         <SubmitButton className="btn-primary">Add member</SubmitButton>
         <p className="text-xs text-muted">They can then sign in with Google or an emailed code using that address.</p>
-      </form>
+      </ActionForm>
     </main>
   );
 }

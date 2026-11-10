@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import ConfirmButton from "@/components/ConfirmButton";
+import ActionForm from "@/components/ActionForm";
 import Stars from "@/components/Stars";
 import SubmitButton from "@/components/SubmitButton";
 import { requireMember } from "@/lib/auth";
@@ -94,7 +94,7 @@ export default async function PlaceDetail({
 
       <section className="card p-4">
         <h2 className="font-semibold">{mine ? "Your visit" : "Been here?"}</h2>
-        <form action={saveVisit.bind(null, id)} className="mt-3 flex flex-col gap-3">
+        <ActionForm action={saveVisit.bind(null, id)} className="mt-3 flex flex-col gap-3">
           <fieldset>
             <legend className="sr-only">Your rating</legend>
             <div className="star-row flex flex-row-reverse justify-end gap-1">
@@ -122,11 +122,17 @@ export default async function PlaceDetail({
             maxLength={200}
           />
           <SubmitButton className="btn-primary">{mine ? "Update" : "✓ I've been here"}</SubmitButton>
-        </form>
+        </ActionForm>
         {mine && (
-          <form action={removeVisit.bind(null, id)} className="mt-2">
-            <button className="min-h-11 w-full text-sm text-muted">Actually, I haven&apos;t been</button>
-          </form>
+          <ActionForm action={removeVisit.bind(null, id)} className="mt-2">
+            <SubmitButton
+              className="min-h-11 w-full text-sm text-muted"
+              pendingText="Removing…"
+              confirm="Remove your visit? Your rating and comment will be deleted."
+            >
+              Actually, I haven&apos;t been
+            </SubmitButton>
+          </ActionForm>
         )}
       </section>
 
@@ -155,11 +161,15 @@ export default async function PlaceDetail({
         <Link href={`/places/${id}/edit`} className="btn-secondary">
           ✏️ Edit
         </Link>
-        <form action={deletePlace.bind(null, id)}>
-          <ConfirmButton message={`Delete "${place.name}"? You can restore it from Deleted places.`} className="btn-danger w-full">
+        <ActionForm action={deletePlace.bind(null, id)}>
+          <SubmitButton
+            className="btn-danger w-full"
+            pendingText="Deleting…"
+            confirm={`Delete "${place.name}"? You can restore it from Deleted places.`}
+          >
             Delete
-          </ConfirmButton>
-        </form>
+          </SubmitButton>
+        </ActionForm>
       </div>
     </main>
   );
