@@ -21,7 +21,7 @@ export default async function PlaceDetail({
   const [{ data: place }, { data: visits }, { data: members }] = await Promise.all([
     supabase.from("place_list").select("*").eq("id", id).is("deleted_at", null).maybeSingle<PlaceListRow>(),
     supabase.from("visits").select("*").eq("place_id", id).order("visited_at", { ascending: false }),
-    supabase.from("members").select("display_name, user_id"),
+    supabase.from("member_names").select("display_name, user_id"),
   ]);
   if (!place) notFound();
 

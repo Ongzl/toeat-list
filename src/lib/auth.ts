@@ -10,12 +10,14 @@ export async function requireMember() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  // Keyed on the verified auth user, not the (unverified) email claim: the DB only links a member row
+  // to an account once its email is confirmed.
   const { data: member } = await supabase
     .from("members")
     .select("*")
-    .eq("email", (user.email ?? "").toLowerCase())
+    .eq("user_id", user.id)
     .maybeSingle<Member>();
-  if (!member) redirect("/not-invited");
+  if (!member || !user.email_confirmed_at) redirect("/not-invited");
 
   return { supabase, user, member };
 }
