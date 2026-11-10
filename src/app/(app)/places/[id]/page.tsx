@@ -70,18 +70,15 @@ export default async function PlaceDetail({
         {place.address && <p className="mt-3 text-sm">📍 {place.address}</p>}
         {place.notes && <p className="mt-3 whitespace-pre-line text-sm">{place.notes}</p>}
 
-        <div className="mt-4 grid grid-cols-2 gap-2">
+        {/* Links out only. Edit lives in one fixed spot at the bottom of the page. */}
+        <div className={`mt-4 grid gap-2 ${place.source_url ? "grid-cols-2" : "grid-cols-1"}`}>
           <a href={mapsHref} target="_blank" rel="noopener noreferrer" className="btn-secondary text-sm">
             🗺️ Maps
           </a>
-          {place.source_url ? (
+          {place.source_url && (
             <a href={place.source_url} target="_blank" rel="noopener noreferrer" className="btn-secondary text-sm">
               🔗 Source
             </a>
-          ) : (
-            <Link href={`/places/${id}/edit`} className="btn-secondary text-sm">
-              ✏️ Edit
-            </Link>
           )}
         </div>
 
@@ -97,21 +94,38 @@ export default async function PlaceDetail({
         <ActionForm action={saveVisit.bind(null, id)} className="mt-3 flex flex-col gap-3">
           <fieldset>
             <legend className="sr-only">Your rating</legend>
-            <div className="star-row flex flex-row-reverse justify-end gap-1">
-              {[5, 4, 3, 2, 1].map((n) => (
-                <label key={n} className="cursor-pointer">
-                  <input
-                    type="radio"
-                    name="rating"
-                    value={n}
-                    defaultChecked={mine?.rating === n}
-                    className="peer sr-only"
-                  />
-                  <span className="star-pick flex h-11 w-11 items-center justify-center rounded-xl text-3xl text-line">
-                    ★
-                  </span>
-                </label>
-              ))}
+            <div className="flex flex-wrap items-center gap-2">
+              {/* DOM order 5..1, shown reversed, so CSS can light up the picked star and the ones before it. */}
+              <div className="star-row flex flex-row-reverse justify-end gap-1">
+                {[5, 4, 3, 2, 1].map((n) => (
+                  <label key={n} className="cursor-pointer">
+                    <input
+                      type="radio"
+                      name="rating"
+                      value={n}
+                      defaultChecked={mine?.rating === n}
+                      aria-label={`${n} star${n > 1 ? "s" : ""}`}
+                      className="peer sr-only"
+                    />
+                    <span
+                      aria-hidden
+                      className="star-pick flex h-11 w-11 items-center justify-center rounded-xl text-3xl text-muted"
+                    >
+                      ★
+                    </span>
+                  </label>
+                ))}
+              </div>
+              <label className="cursor-pointer">
+                <input
+                  type="radio"
+                  name="rating"
+                  value=""
+                  defaultChecked={!mine?.rating}
+                  className="peer sr-only"
+                />
+                <span className="picker-pill btn-secondary min-h-9 rounded-full text-sm">No rating</span>
+              </label>
             </div>
           </fieldset>
           <input
@@ -146,9 +160,14 @@ export default async function PlaceDetail({
               <li key={v.user_id} className="py-2">
                 <div className="flex items-center justify-between text-sm">
                   <span className="font-medium">{nameOf.get(v.user_id) ?? "Former member"}</span>
-                  <span className="text-star">
-                    {v.rating ? "★".repeat(v.rating) : <span className="text-xs text-muted">been, no rating</span>}
-                  </span>
+                  {v.rating ? (
+                    <span className="text-star">
+                      <span aria-hidden>{"★".repeat(v.rating)}</span>
+                      <span className="sr-only">{v.rating} out of 5</span>
+                    </span>
+                  ) : (
+                    <span className="text-xs text-muted">been, no rating</span>
+                  )}
                 </div>
                 {v.comment && <p className="mt-0.5 text-sm text-muted">{v.comment}</p>}
               </li>

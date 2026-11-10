@@ -101,20 +101,21 @@ export default function PlaceForm({ action, place, areas, cuisines, cancelHref }
             <legend className="label">Price</legend>
             <div className="grid grid-cols-4 gap-2">
               {[
-                ["", "?"],
-                ["1", "$"],
-                ["2", "$$"],
-                ["3", "$$$"],
-              ].map(([v, l]) => (
+                ["", "?", "Not sure"],
+                ["1", "$", "Cheap"],
+                ["2", "$$", "Mid-range"],
+                ["3", "$$$", "Pricey"],
+              ].map(([v, l, spoken]) => (
                 <label key={v} className="relative">
                   <input
                     type="radio"
                     name="price"
                     value={v}
                     defaultChecked={String(place?.price ?? "") === v}
+                    aria-label={spoken}
                     className="peer sr-only"
                   />
-                  <span className="btn-secondary w-full peer-checked:border-accent peer-checked:bg-accent-soft">
+                  <span className="picker-pill btn-secondary w-full">
                     {l}
                   </span>
                 </label>
@@ -134,7 +135,7 @@ export default function PlaceForm({ action, place, areas, cuisines, cancelHref }
                     defaultChecked={place?.dietary.includes(d)}
                     className="peer sr-only"
                   />
-                  <span className="btn-secondary min-h-9 rounded-full text-sm peer-checked:border-accent peer-checked:bg-accent-soft">
+                  <span className="picker-pill btn-secondary min-h-9 rounded-full text-sm">
                     {d}
                   </span>
                 </label>

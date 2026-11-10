@@ -80,3 +80,13 @@ body {
 .star-row input:focus-visible + .star-pick {
   outline: 2px solid var(--accent);
 }
+
+/* Visually hidden radio/checkbox followed by a visible pill: show checked + keyboard focus. */
+input:checked + .picker-pill {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+input:focus-visible + .picker-pill {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
