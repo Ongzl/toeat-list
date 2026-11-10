@@ -1,6 +1,6 @@
+import ActionForm from "@/components/ActionForm";
 import SubmitButton from "@/components/SubmitButton";
 import { requireMember } from "@/lib/auth";
-import type { Place } from "@/lib/types";
 import { restorePlace } from "../places/actions";
 
 export default async function Trash() {
@@ -10,7 +10,7 @@ export default async function Trash() {
     .select("*")
     .not("deleted_at", "is", null)
     .order("deleted_at", { ascending: false });
-  const places = (data ?? []) as Place[];
+  const places = data ?? [];
 
   return (
     <main className="flex flex-col gap-3 px-4 pt-4">
@@ -25,11 +25,11 @@ export default async function Trash() {
                 <p className="font-medium">{p.name}</p>
                 <p className="text-xs text-muted">Deleted {new Date(p.deleted_at!).toLocaleDateString()}</p>
               </div>
-              <form action={restorePlace.bind(null, p.id)}>
+              <ActionForm action={restorePlace.bind(null, p.id)}>
                 <SubmitButton className="btn-secondary text-sm" pendingText="…">
                   Restore
                 </SubmitButton>
-              </form>
+              </ActionForm>
             </li>
           ))}
         </ul>

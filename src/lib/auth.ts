@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { Member } from "@/lib/types";
 
 /** Signed-in user who is on the allow-list. Redirects otherwise. */
 export async function requireMember() {
@@ -10,12 +9,10 @@ export async function requireMember() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: member } = await supabase
-    .from("members")
-    .select("*")
-    .eq("email", (user.email ?? "").toLowerCase())
-    .maybeSingle<Member>();
-  if (!member) redirect("/not-invited");
+  // Keyed on the verified auth user, not the (unverified) email claim: the DB only links a member row
+  // to an account once its email is confirmed.
+  const { data: member } = await supabase.from("members").select("*").eq("user_id", user.id).maybeSingle();
+  if (!member || !user.email_confirmed_at) redirect("/not-invited");
 
   return { supabase, user, member };
 }

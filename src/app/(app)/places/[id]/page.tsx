@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import ConfirmButton from "@/components/ConfirmButton";
+import ActionForm from "@/components/ActionForm";
 import Stars from "@/components/Stars";
 import SubmitButton from "@/components/SubmitButton";
 import { requireMember } from "@/lib/auth";
-import { priceLabel, type Member, type PlaceListRow, type Visit } from "@/lib/types";
+import { priceLabel } from "@/lib/types";
 import { deletePlace, removeVisit, saveVisit } from "../actions";
 
 export default async function PlaceDetail({
@@ -19,14 +19,14 @@ export default async function PlaceDetail({
   const { supabase, user } = await requireMember();
 
   const [{ data: place }, { data: visits }, { data: members }] = await Promise.all([
-    supabase.from("place_list").select("*").eq("id", id).is("deleted_at", null).maybeSingle<PlaceListRow>(),
+    supabase.from("place_list").select("*").eq("id", id).is("deleted_at", null).maybeSingle(),
     supabase.from("visits").select("*").eq("place_id", id).order("visited_at", { ascending: false }),
-    supabase.from("members").select("display_name, user_id"),
+    supabase.from("member_names").select("display_name, user_id"),
   ]);
   if (!place) notFound();
 
-  const nameOf = new Map((members as Pick<Member, "display_name" | "user_id">[]).map((m) => [m.user_id, m.display_name]));
-  const allVisits = (visits ?? []) as Visit[];
+  const nameOf = new Map((members ?? []).map((m) => [m.user_id, m.display_name]));
+  const allVisits = visits ?? [];
   const mine = allVisits.find((v) => v.user_id === user.id);
   const others = allVisits.filter((v) => v.user_id !== user.id);
   const mapsHref =
@@ -52,7 +52,7 @@ export default async function PlaceDetail({
 
       <section className="card p-4">
         <div className="flex items-start justify-between gap-3">
-          <h1 className="text-xl font-bold leading-tight">{place.name}</h1>
+          <h1 className="text-xl leading-tight font-bold">{place.name}</h1>
           <Stars value={place.avg_rating} count={Number(place.rating_count)} />
         </div>
         <p className="mt-1 text-sm text-muted">
@@ -68,20 +68,22 @@ export default async function PlaceDetail({
           </div>
         )}
         {place.address && <p className="mt-3 text-sm">📍 {place.address}</p>}
-        {place.notes && <p className="mt-3 whitespace-pre-line text-sm">{place.notes}</p>}
+        {place.notes && <p className="mt-3 text-sm whitespace-pre-line">{place.notes}</p>}
 
-        <div className="mt-4 grid grid-cols-2 gap-2">
+        {/* Links out only. Edit lives in one fixed spot at the bottom of the page. */}
+        <div className={`mt-4 grid gap-2 ${place.source_url ? "grid-cols-2" : "grid-cols-1"}`}>
           <a href={mapsHref} target="_blank" rel="noopener noreferrer" className="btn-secondary text-sm">
             🗺️ Maps
           </a>
-          {place.source_url ? (
-            <a href={place.source_url} target="_blank" rel="noopener noreferrer" className="btn-secondary text-sm">
+          {place.source_url && (
+            <a
+              href={place.source_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-secondary text-sm"
+            >
               🔗 Source
             </a>
-          ) : (
-            <Link href={`/places/${id}/edit`} className="btn-secondary text-sm">
-              ✏️ Edit
-            </Link>
           )}
         </div>
 
@@ -94,24 +96,41 @@ export default async function PlaceDetail({
 
       <section className="card p-4">
         <h2 className="font-semibold">{mine ? "Your visit" : "Been here?"}</h2>
-        <form action={saveVisit.bind(null, id)} className="mt-3 flex flex-col gap-3">
+        <ActionForm action={saveVisit.bind(null, id)} className="mt-3 flex flex-col gap-3">
           <fieldset>
             <legend className="sr-only">Your rating</legend>
-            <div className="star-row flex flex-row-reverse justify-end gap-1">
-              {[5, 4, 3, 2, 1].map((n) => (
-                <label key={n} className="cursor-pointer">
-                  <input
-                    type="radio"
-                    name="rating"
-                    value={n}
-                    defaultChecked={mine?.rating === n}
-                    className="peer sr-only"
-                  />
-                  <span className="star-pick flex h-11 w-11 items-center justify-center rounded-xl text-3xl text-line">
-                    ★
-                  </span>
-                </label>
-              ))}
+            <div className="flex flex-wrap items-center gap-2">
+              {/* DOM order 5..1, shown reversed, so CSS can light up the picked star and the ones before it. */}
+              <div className="star-row flex flex-row-reverse justify-end gap-1">
+                {[5, 4, 3, 2, 1].map((n) => (
+                  <label key={n} className="cursor-pointer">
+                    <input
+                      type="radio"
+                      name="rating"
+                      value={n}
+                      defaultChecked={mine?.rating === n}
+                      aria-label={`${n} star${n > 1 ? "s" : ""}`}
+                      className="peer sr-only"
+                    />
+                    <span
+                      aria-hidden
+                      className="star-pick flex h-11 w-11 items-center justify-center rounded-xl text-3xl text-muted"
+                    >
+                      ★
+                    </span>
+                  </label>
+                ))}
+              </div>
+              <label className="cursor-pointer">
+                <input
+                  type="radio"
+                  name="rating"
+                  value=""
+                  defaultChecked={!mine?.rating}
+                  className="peer sr-only"
+                />
+                <span className="picker-pill btn-secondary min-h-9 rounded-full text-sm">No rating</span>
+              </label>
             </div>
           </fieldset>
           <input
@@ -122,11 +141,17 @@ export default async function PlaceDetail({
             maxLength={200}
           />
           <SubmitButton className="btn-primary">{mine ? "Update" : "✓ I've been here"}</SubmitButton>
-        </form>
+        </ActionForm>
         {mine && (
-          <form action={removeVisit.bind(null, id)} className="mt-2">
-            <button className="min-h-11 w-full text-sm text-muted">Actually, I haven&apos;t been</button>
-          </form>
+          <ActionForm action={removeVisit.bind(null, id)} className="mt-2">
+            <SubmitButton
+              className="min-h-11 w-full text-sm text-muted"
+              pendingText="Removing…"
+              confirm="Remove your visit? Your rating and comment will be deleted."
+            >
+              Actually, I haven&apos;t been
+            </SubmitButton>
+          </ActionForm>
         )}
       </section>
 
@@ -140,9 +165,14 @@ export default async function PlaceDetail({
               <li key={v.user_id} className="py-2">
                 <div className="flex items-center justify-between text-sm">
                   <span className="font-medium">{nameOf.get(v.user_id) ?? "Former member"}</span>
-                  <span className="text-star">
-                    {v.rating ? "★".repeat(v.rating) : <span className="text-xs text-muted">been, no rating</span>}
-                  </span>
+                  {v.rating ? (
+                    <span className="text-star">
+                      <span aria-hidden>{"★".repeat(v.rating)}</span>
+                      <span className="sr-only">{v.rating} out of 5</span>
+                    </span>
+                  ) : (
+                    <span className="text-xs text-muted">been, no rating</span>
+                  )}
                 </div>
                 {v.comment && <p className="mt-0.5 text-sm text-muted">{v.comment}</p>}
               </li>
@@ -155,11 +185,15 @@ export default async function PlaceDetail({
         <Link href={`/places/${id}/edit`} className="btn-secondary">
           ✏️ Edit
         </Link>
-        <form action={deletePlace.bind(null, id)}>
-          <ConfirmButton message={`Delete "${place.name}"? You can restore it from Deleted places.`} className="btn-danger w-full">
+        <ActionForm action={deletePlace.bind(null, id)}>
+          <SubmitButton
+            className="btn-danger w-full"
+            pendingText="Deleting…"
+            confirm={`Delete "${place.name}"? You can restore it from Deleted places.`}
+          >
             Delete
-          </ConfirmButton>
-        </form>
+          </SubmitButton>
+        </ActionForm>
       </div>
     </main>
   );
