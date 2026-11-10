@@ -28,7 +28,9 @@ npm run dev             # http://localhost:3000
 
 `.env.local` must contain the local API URL and anon key. Get them with `npx supabase status`.
 
-**Signing in locally:** Google isn't configured locally, so use the email link instead. Enter `admin@example.test` (admin) or `sam@example.test` (member). The email lands in Mailpit at <http://localhost:54324>, where you click the link.
+**Signing in locally:** Google isn't configured locally, so use the emailed code instead. Enter `admin@example.test` (admin) or `sam@example.test` (member). The email with the 6-digit code lands in Mailpit at <http://localhost:54324>.
+
+After changing `supabase/config.toml` or `supabase/templates/`, restart with `npx supabase stop` then `npm run db:start`.
 
 `npm run db:reset` wipes the local DB and re-applies `supabase/migrations` and `supabase/seed.sql`.
 
@@ -51,6 +53,8 @@ npm run dev             # http://localhost:3000
    - In Google Cloud Console → APIs & Services → Credentials, create an **OAuth client ID** (Web application).
    - Authorized redirect URI: `https://<your-project-ref>.supabase.co/auth/v1/callback`
    - Paste the client ID and secret into Supabase → Authentication → Sign In / Providers → **Google**.
+   - In the same page, under **Email**: keep it enabled (it's used for sign-in codes), and keep **Confirm email** turned **on**. Access is only granted to confirmed emails.
+   - Authentication → Emails → **Magic Link** and **Confirm signup** templates: replace the body with the contents of `supabase/templates/sign_in_code.html` (it sends `{{ .Token }}`, a 6-digit code, instead of a link).
 4. **Vercel:**
    - Import the GitHub repo.
    - Set env vars `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`, from Supabase → Project Settings → API.
@@ -62,11 +66,12 @@ npm run dev             # http://localhost:3000
 
 ## How access works
 
-Security is enforced in the database (`supabase/migrations/*_init.sql`), not just the UI:
+Security is enforced in the database (`supabase/migrations/`), not just the UI. Membership is tied to a confirmed sign-in, never just to the email someone claims.
 
 | | Members | Admin | Signed in but not on the list |
 |---|---|---|---|
-| See places, ratings, members | ✅ | ✅ | ❌ sees nothing |
+| See places, ratings and members' names | ✅ | ✅ | ❌ sees nothing |
+| See members' emails and admin flags | ❌ (only own) | ✅ | ❌ |
 | Add / edit / soft-delete / restore any place | ✅ | ✅ | ❌ |
 | Hard-delete a place | ❌ | ❌ | ❌ |
 | Add / change / remove **own** rating | ✅ | ✅ | ❌ |

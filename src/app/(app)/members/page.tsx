@@ -40,7 +40,7 @@ export default async function Members() {
         <input name="display_name" required placeholder="Name (e.g. Aunty May)" className="input" />
         <input name="email" type="email" required placeholder="Their Google / email address" className="input" />
         <SubmitButton className="btn-primary">Add member</SubmitButton>
-        <p className="text-xs text-muted">They can then sign in with Google or an email link using that address.</p>
+        <p className="text-xs text-muted">They can then sign in with Google or an emailed code using that address.</p>
       </form>
     </main>
   );
