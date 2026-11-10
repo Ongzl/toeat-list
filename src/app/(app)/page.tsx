@@ -17,7 +17,8 @@ export default async function Home({
   const places = applyFilters(all, filters);
 
   return (
-    <main className="flex flex-col gap-4 px-4 pt-4">
+    // Bottom padding clears the floating "Add a place" button, including the iPhone home-indicator inset.
+    <main className="flex flex-col gap-4 px-4 pt-4 pb-[calc(6rem+env(safe-area-inset-bottom))]">
       <Suspense>
         <FilterBar areas={distinct(all, "area")} cuisines={distinct(all, "cuisine")} />
       </Suspense>
@@ -70,8 +71,7 @@ export default async function Home({
 
       <Link
         href="/places/new"
-        className="btn-primary fixed bottom-6 left-1/2 -translate-x-1/2 px-6 shadow-lg"
-        style={{ marginBottom: "env(safe-area-inset-bottom)" }}
+        className="btn-primary fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 px-6 shadow-lg"
       >
         + Add a place
       </Link>
