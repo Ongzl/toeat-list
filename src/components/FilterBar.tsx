@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useRef } from "react";
+import { FILTER_ONLY_KEYS } from "@/lib/filters";
 
 type Props = { areas: string[]; cuisines: string[] };
 
@@ -20,20 +21,18 @@ export default function FilterBar({ areas, cuisines }: Props) {
     router.replace(p.size ? `/?${p}` : "/", { scroll: false });
   }
 
+  // Cancel any pending debounced search, clear the dropdowns, then apply what's left in the form
+  // (search text and sort) right away, so a late debounce can't undo the clear.
   function clearFilters() {
-    const p = new URLSearchParams();
-    const q = sp.get("q");
-    const sort = sp.get("sort");
-    if (q) p.set("q", q);
-    if (sort) p.set("sort", sort);
-    for (const name of ["area", "cuisine", "price", "tried"]) {
-      const el = formRef.current?.elements.namedItem(name) as HTMLSelectElement | null;
-      if (el) el.value = "";
+    clearTimeout(timer.current);
+    for (const name of FILTER_ONLY_KEYS) {
+      const el = formRef.current?.elements.namedItem(name);
+      if (el instanceof HTMLSelectElement) el.value = "";
     }
-    router.replace(p.size ? `/?${p}` : "/", { scroll: false });
+    apply();
   }
 
-  const activeCount = ["area", "cuisine", "price", "tried"].filter((k) => sp.get(k)).length;
+  const activeCount = FILTER_ONLY_KEYS.filter((k) => sp.get(k)).length;
 
   return (
     <form

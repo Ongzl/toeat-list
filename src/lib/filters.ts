@@ -6,10 +6,12 @@ export type Filters = {
   cuisine?: string;
   price?: string;
   tried?: "" | "notme" | "nobody" | "mine";
-  sort?: "" | "newest" | "rating" | "name";
+  sort?: "" | "rating" | "name"; // "" = newest first
 };
 
-export const FILTER_KEYS = ["q", "area", "cuisine", "price", "tried", "sort"] as const;
+/** The dropdown filters (everything except search and sort). */
+export const FILTER_ONLY_KEYS = ["area", "cuisine", "price", "tried"] as const;
+export const FILTER_KEYS = ["q", ...FILTER_ONLY_KEYS, "sort"] as const;
 
 export function readFilters(sp: Record<string, string | string[] | undefined>): Filters {
   const get = (k: string) => {
