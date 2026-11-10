@@ -2,6 +2,12 @@
 
 Our group's shared list of places worth eating at. Mobile-first, for about 10 trusted family members or friends.
 
+## Demo
+
+[![ToEat List demo: browse, filter, random pick, rate, add a place](demo/preview.jpg)](demo/toeat-list-demo.mp4)
+
+▶️ **[Watch the 54-second demo](demo/toeat-list-demo.mp4)**: sign in, sort and filter, 🎲 random pick, rate a place, add a new one. It was recorded on a phone-sized screen with local test data.
+
 - Add a place in seconds: name plus a link; everything else is optional.
 - Each person marks "I've been here", gives a 1–5 rating and an optional one-liner. The list shows the group average.
 - Filter by area, cuisine, price and "not tried yet". Sort by newest, top rated or A–Z. Use 🎲 **Pick one for me**.
