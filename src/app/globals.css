@@ -1,26 +1,82 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --background: #fbf8f4;
+  --card: #ffffff;
+  --foreground: #1f1b16;
+  --muted: #776e64;
+  --line: #e7e0d7;
+  --accent: #d9480f;
+  --accent-fg: #ffffff;
+  --accent-soft: #fff0e6;
+  --danger: #c92a2a;
+  --star: #f59f00;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #15120f;
+    --card: #201c18;
+    --foreground: #f1ebe4;
+    --muted: #a99e92;
+    --line: #36302a;
+    --accent: #ff7a3d;
+    --accent-fg: #1a0d05;
+    --accent-soft: #3a2316;
+    --danger: #ff6b6b;
+    --star: #fcc419;
   }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-danger: var(--danger);
+  --color-star: var(--star);
+  --font-sans: var(--font-geist-sans);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-accent px-4 font-semibold text-accent-fg active:opacity-80 disabled:opacity-50;
+  }
+  .btn-secondary {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-line bg-card px-4 font-medium active:opacity-80 disabled:opacity-50;
+  }
+  .btn-danger {
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-danger px-4 font-medium text-danger active:opacity-80;
+  }
+  .input {
+    @apply min-h-11 w-full rounded-xl border border-line bg-card px-3 text-base outline-none focus:border-accent;
+  }
+  .label {
+    @apply mb-1 block text-sm font-medium;
+  }
+  .chip {
+    @apply inline-flex items-center rounded-full bg-accent-soft px-2 py-0.5 text-xs;
+  }
+  .card {
+    @apply rounded-2xl border border-line bg-card;
+  }
+}
+
+/* Rating picker: stars are in DOM order 5..1 and displayed reversed, so "checked + later siblings" = 1..n */
+.star-row label:has(input:checked) .star-pick,
+.star-row label:has(input:checked) ~ label .star-pick {
+  color: var(--star);
+}
+.star-row input:focus-visible + .star-pick {
+  outline: 2px solid var(--accent);
 }

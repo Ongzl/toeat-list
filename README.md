@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🍜 ToEat List
 
-## Getting Started
+Our group's shared list of places worth eating at. Mobile-first, for about 10 trusted family members or friends.
 
-First, run the development server:
+- Add a place in seconds: name plus a link; everything else is optional.
+- Each person marks "I've been here", gives a 1–5 rating and an optional one-liner. The list shows the group average.
+- Filter by area, cuisine, price and "not tried yet". Sort by newest, top rated or A–Z. Use 🎲 **Pick one for me**.
+- Anyone can edit or delete any place. Deletes go to **Deleted places** and can be restored.
+- Only emails on the members list can get in. The admin manages them on the **Members** page.
+
+**Stack:** Next.js 15 (App Router, TypeScript, Tailwind) and Supabase (Postgres, Auth, row-level security), hosted on Vercel.
+
+## Run it locally
+
+Needs Node and Docker Desktop (running).
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run db:start        # local Supabase in Docker; applies migrations + seed
+npm run dev             # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`.env.local` must contain the local API URL and anon key. Get them with `npx supabase status`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**Signing in locally:** Google isn't configured locally, so use the email link instead. Enter `admin@example.test` (admin) or `sam@example.test` (member). The email lands in Mailpit at <http://localhost:54324>, where you click the link.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`npm run db:reset` wipes the local DB and re-applies `supabase/migrations` and `supabase/seed.sql`.
 
-## Learn More
+## Deploy (free tiers)
 
-To learn more about Next.js, take a look at the following resources:
+1. **GitHub:** push this repo.
+2. **Supabase:** create a project, then:
+   ```bash
+   npx supabase login
+   npx supabase link --project-ref <your-project-ref>
+   npx supabase db push            # creates tables, rules and the list view
+   ```
+   In the SQL editor, add yourself as the first admin:
+   ```sql
+   insert into public.members (email, display_name, is_admin)
+   values ('your.email@gmail.com', 'Your Name', true);
+   ```
+   (Don't run `seed.sql` in production. It only holds test data.)
+3. **Google sign-in:**
+   - In Google Cloud Console → APIs & Services → Credentials, create an **OAuth client ID** (Web application).
+   - Authorized redirect URI: `https://<your-project-ref>.supabase.co/auth/v1/callback`
+   - Paste the client ID and secret into Supabase → Authentication → Sign In / Providers → **Google**.
+4. **Vercel:**
+   - Import the GitHub repo.
+   - Set env vars `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`, from Supabase → Project Settings → API.
+5. **Supabase → Authentication → URL Configuration:**
+   - Site URL: `https://<your-app>.vercel.app`
+   - Redirect URLs: `https://<your-app>.vercel.app/auth/callback`
+6. Open the site, sign in, go to **Members**, and add the rest of the group.
+   - On a phone: **Share → Add to Home Screen** (iOS) or **⋮ → Install app** (Android).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## How access works
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Security is enforced in the database (`supabase/migrations/*_init.sql`), not just the UI:
 
-## Deploy on Vercel
+| | Members | Admin | Signed in but not on the list |
+|---|---|---|---|
+| See places, ratings, members | ✅ | ✅ | ❌ sees nothing |
+| Add / edit / soft-delete / restore any place | ✅ | ✅ | ❌ |
+| Hard-delete a place | ❌ | ❌ | ❌ |
+| Add / change / remove **own** rating | ✅ | ✅ | ❌ |
+| Change someone else's rating | ❌ | ❌ | ❌ |
+| Add / remove members | ❌ | ✅ (not themselves) | ❌ |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Later (v2 ideas)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Photos, auto-filling details from a Google Maps link, "near me" / map view, notifications, and a one-off import of any existing list.
