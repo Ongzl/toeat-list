@@ -13,8 +13,10 @@ type Props = Omit<React.FormHTMLAttributes<HTMLFormElement>, "action" | "onSubmi
 
 /**
  * Form wired to a server action that reports errors inline instead of crashing.
- * Submits via onSubmit (not the `action` prop) so React doesn't reset the inputs: if the save fails,
- * everything the person typed is still there.
+ * Once hydrated it submits via onSubmit, so React doesn't reset the inputs: if the save fails,
+ * everything the person typed is still there. The `action` prop is the fallback for a submit that
+ * happens before the page's JavaScript has loaded (it posts to the server action instead of
+ * turning into a GET with the fields in the URL).
  */
 export default function ActionForm({ action, resetOnSuccess, children, ...rest }: Props) {
   const [state, dispatch, pending] = useActionState(action, null);
@@ -28,6 +30,7 @@ export default function ActionForm({ action, resetOnSuccess, children, ...rest }
     <form
       {...rest}
       ref={ref}
+      action={dispatch}
       onSubmit={(e) => {
         e.preventDefault();
         const fd = new FormData(e.currentTarget);

@@ -32,7 +32,16 @@ npm run dev             # http://localhost:3000
 
 After changing `supabase/config.toml` or `supabase/templates/`, restart with `npx supabase stop` then `npm run db:start`.
 
-`npm run db:reset` wipes the local DB and re-applies `supabase/migrations` and `supabase/seed.sql`.
+`npm run db:reset` wipes the local DB and re-applies `supabase/migrations` and `supabase/seed.sql`. After changing a migration, run `npm run db:types` to regenerate `src/lib/database.types.ts`.
+
+**Checks** (CI runs all of these on every push and pull request):
+
+```bash
+npm run lint            # ESLint, incl. the full jsx-a11y recommended rules
+npm run typecheck       # tsc --noEmit
+npm run format:check    # Prettier (npm run format to fix)
+npm test                # Vitest unit tests
+```
 
 ## Deploy (free tiers)
 
