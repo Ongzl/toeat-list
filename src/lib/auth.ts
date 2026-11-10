@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { Member } from "@/lib/types";
 
 /** Signed-in user who is on the allow-list. Redirects otherwise. */
 export async function requireMember() {
@@ -16,7 +15,7 @@ export async function requireMember() {
     .from("members")
     .select("*")
     .eq("user_id", user.id)
-    .maybeSingle<Member>();
+    .maybeSingle();
   if (!member || !user.email_confirmed_at) redirect("/not-invited");
 
   return { supabase, user, member };

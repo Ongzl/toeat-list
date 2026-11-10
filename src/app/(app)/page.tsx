@@ -3,7 +3,8 @@ import { Suspense } from "react";
 import FilterBar from "@/components/FilterBar";
 import Stars from "@/components/Stars";
 import { requireMember } from "@/lib/auth";
-import { applyFilters, distinct, loadActivePlaces, readFilters, toQuery } from "@/lib/filters";
+import { FILTER_ONLY_KEYS, readFilters, toQuery } from "@/lib/filters";
+import { loadOptions, queryPlaces } from "@/lib/places-query";
 import { priceLabel } from "@/lib/types";
 
 export default async function Home({
@@ -13,14 +14,16 @@ export default async function Home({
 }) {
   const { supabase } = await requireMember();
   const filters = readFilters(await searchParams);
-  const all = await loadActivePlaces(supabase);
-  const places = applyFilters(all, filters);
+  const [{ data, error }, options] = await Promise.all([queryPlaces(supabase, filters), loadOptions(supabase)]);
+  if (error) throw error;
+  const places = data;
+  const filtering = !!filters.q || FILTER_ONLY_KEYS.some((k) => filters[k]);
 
   return (
     // Bottom padding clears the floating "Add a place" button, including the iPhone home-indicator inset.
     <main className="flex flex-col gap-4 px-4 pt-4 pb-[calc(6rem+env(safe-area-inset-bottom))]">
       <Suspense>
-        <FilterBar areas={distinct(all, "area")} cuisines={distinct(all, "cuisine")} />
+        <FilterBar areas={options.areas} cuisines={options.cuisines} />
       </Suspense>
 
       <div className="flex items-center justify-between text-sm text-muted">
@@ -36,7 +39,7 @@ export default async function Home({
 
       {places.length === 0 ? (
         <div className="card p-6 text-center text-sm text-muted">
-          {all.length === 0 ? "No places yet. Add the first one!" : "Nothing matches these filters."}
+          {filtering ? "Nothing matches these filters." : "No places yet. Add the first one!"}
         </div>
       ) : (
         <ul className="flex flex-col gap-3">

@@ -1,16 +1,15 @@
 import { notFound } from "next/navigation";
 import PlaceForm from "@/components/PlaceForm";
 import { requireMember } from "@/lib/auth";
-import { distinct, loadActivePlaces } from "@/lib/filters";
-import type { Place } from "@/lib/types";
+import { loadOptions } from "@/lib/places-query";
 import { updatePlace } from "../../actions";
 
 export default async function EditPlace({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const { supabase } = await requireMember();
-  const [{ data: place }, all] = await Promise.all([
-    supabase.from("places").select("*").eq("id", id).is("deleted_at", null).maybeSingle<Place>(),
-    loadActivePlaces(supabase),
+  const [{ data: place }, { areas, cuisines }] = await Promise.all([
+    supabase.from("places").select("*").eq("id", id).is("deleted_at", null).maybeSingle(),
+    loadOptions(supabase),
   ]);
   if (!place) notFound();
 
@@ -20,8 +19,8 @@ export default async function EditPlace({ params }: { params: Promise<{ id: stri
       <PlaceForm
         action={updatePlace.bind(null, id)}
         place={place}
-        areas={distinct(all, "area")}
-        cuisines={distinct(all, "cuisine")}
+        areas={areas}
+        cuisines={cuisines}
         cancelHref={`/places/${id}`}
       />
     </main>

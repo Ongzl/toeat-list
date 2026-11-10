@@ -1,7 +1,6 @@
 import ActionForm from "@/components/ActionForm";
 import SubmitButton from "@/components/SubmitButton";
 import { requireMember } from "@/lib/auth";
-import type { Place } from "@/lib/types";
 import { restorePlace } from "../places/actions";
 
 export default async function Trash() {
@@ -11,7 +10,7 @@ export default async function Trash() {
     .select("*")
     .not("deleted_at", "is", null)
     .order("deleted_at", { ascending: false });
-  const places = (data ?? []) as Place[];
+  const places = data ?? [];
 
   return (
     <main className="flex flex-col gap-3 px-4 pt-4">

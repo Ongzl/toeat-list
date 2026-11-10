@@ -1,13 +1,12 @@
 import ActionForm from "@/components/ActionForm";
 import SubmitButton from "@/components/SubmitButton";
 import { requireAdmin } from "@/lib/auth";
-import type { Member } from "@/lib/types";
 import { addMember, removeMember } from "./actions";
 
 export default async function Members() {
   const { supabase, member: me } = await requireAdmin();
   const { data } = await supabase.from("members").select("*").order("added_at");
-  const members = (data ?? []) as Member[];
+  const members = data ?? [];
 
   return (
     <main className="flex flex-col gap-4 px-4 pt-4">

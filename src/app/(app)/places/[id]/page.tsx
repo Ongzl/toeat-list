@@ -4,7 +4,7 @@ import ActionForm from "@/components/ActionForm";
 import Stars from "@/components/Stars";
 import SubmitButton from "@/components/SubmitButton";
 import { requireMember } from "@/lib/auth";
-import { priceLabel, type Member, type PlaceListRow, type Visit } from "@/lib/types";
+import { priceLabel } from "@/lib/types";
 import { deletePlace, removeVisit, saveVisit } from "../actions";
 
 export default async function PlaceDetail({
@@ -19,14 +19,14 @@ export default async function PlaceDetail({
   const { supabase, user } = await requireMember();
 
   const [{ data: place }, { data: visits }, { data: members }] = await Promise.all([
-    supabase.from("place_list").select("*").eq("id", id).is("deleted_at", null).maybeSingle<PlaceListRow>(),
+    supabase.from("place_list").select("*").eq("id", id).is("deleted_at", null).maybeSingle(),
     supabase.from("visits").select("*").eq("place_id", id).order("visited_at", { ascending: false }),
     supabase.from("member_names").select("display_name, user_id"),
   ]);
   if (!place) notFound();
 
-  const nameOf = new Map((members as Pick<Member, "display_name" | "user_id">[]).map((m) => [m.user_id, m.display_name]));
-  const allVisits = (visits ?? []) as Visit[];
+  const nameOf = new Map((members ?? []).map((m) => [m.user_id, m.display_name]));
+  const allVisits = visits ?? [];
   const mine = allVisits.find((v) => v.user_id === user.id);
   const others = allVisits.filter((v) => v.user_id !== user.id);
   const mapsHref =
