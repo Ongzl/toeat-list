@@ -1,0 +1,12 @@
+.next/
+node_modules/
+out/
+build/
+demo/
+public/
+package-lock.json
+next-env.d.ts
+src/lib/database.types.ts
+supabase/.temp/
+supabase/.branches/
+.claude/worktrees/

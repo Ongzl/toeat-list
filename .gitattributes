@@ -1,0 +1,5 @@
+# Keep LF in working copies on every OS so Prettier's check passes locally and in CI.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.mp4 binary

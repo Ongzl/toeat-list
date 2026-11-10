@@ -20,15 +20,7 @@ export default function PlaceForm({ action, place, areas, cuisines, cancelHref }
         <label className="label" htmlFor="name">
           Name *
         </label>
-        <input
-          id="name"
-          name="name"
-          required
-          maxLength={120}
-          defaultValue={place?.name}
-          className="input"
-          autoFocus={!place}
-        />
+        <input id="name" name="name" required maxLength={120} defaultValue={place?.name} className="input" />
       </div>
 
       <div>
@@ -70,7 +62,14 @@ export default function PlaceForm({ action, place, areas, cuisines, cancelHref }
               <label className="label" htmlFor="area">
                 Area
               </label>
-              <input id="area" name="area" list="areas" maxLength={80} defaultValue={place?.area ?? ""} className="input" />
+              <input
+                id="area"
+                name="area"
+                list="areas"
+                maxLength={80}
+                defaultValue={place?.area ?? ""}
+                className="input"
+              />
               <datalist id="areas">
                 {areas.map((a) => (
                   <option key={a} value={a} />
@@ -115,9 +114,7 @@ export default function PlaceForm({ action, place, areas, cuisines, cancelHref }
                     aria-label={spoken}
                     className="peer sr-only"
                   />
-                  <span className="picker-pill btn-secondary w-full">
-                    {l}
-                  </span>
+                  <span className="picker-pill btn-secondary w-full">{l}</span>
                 </label>
               ))}
             </div>
@@ -135,9 +132,7 @@ export default function PlaceForm({ action, place, areas, cuisines, cancelHref }
                     defaultChecked={place?.dietary.includes(d)}
                     className="peer sr-only"
                   />
-                  <span className="picker-pill btn-secondary min-h-9 rounded-full text-sm">
-                    {d}
-                  </span>
+                  <span className="picker-pill btn-secondary min-h-9 rounded-full text-sm">{d}</span>
                 </label>
               ))}
             </div>
@@ -164,7 +159,13 @@ export default function PlaceForm({ action, place, areas, cuisines, cancelHref }
             <label className="label" htmlFor="address">
               Address
             </label>
-            <input id="address" name="address" maxLength={300} defaultValue={place?.address ?? ""} className="input" />
+            <input
+              id="address"
+              name="address"
+              maxLength={300}
+              defaultValue={place?.address ?? ""}
+              className="input"
+            />
           </div>
 
           <div>

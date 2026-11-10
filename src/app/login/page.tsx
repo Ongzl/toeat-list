@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 const ERRORS: Record<string, string> = {
@@ -17,6 +17,12 @@ function LoginForm() {
   const [step, setStep] = useState<"email" | "code">("email");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(ERRORS[params.get("error") ?? ""] ?? "");
+  const codeRef = useRef<HTMLInputElement>(null);
+
+  // Move focus to the code box only after the person asked for a code.
+  useEffect(() => {
+    if (step === "code") codeRef.current?.focus();
+  }, [step]);
 
   async function google() {
     setError("");
@@ -77,7 +83,8 @@ function LoginForm() {
       </button>
 
       <div className="flex items-center gap-3 text-xs text-muted">
-        <span className="h-px flex-1 bg-line" /> or get a code by email <span className="h-px flex-1 bg-line" />
+        <span className="h-px flex-1 bg-line" /> or get a code by email{" "}
+        <span className="h-px flex-1 bg-line" />
       </div>
 
       {step === "email" ? (
@@ -114,7 +121,7 @@ function LoginForm() {
             pattern="\d{6}"
             placeholder="123456"
             className="input text-center text-2xl tracking-[0.4em]"
-            autoFocus
+            ref={codeRef}
           />
           <button disabled={busy || code.length !== 6} className="btn-primary w-full">
             {busy ? "Checking…" : "Sign in"}

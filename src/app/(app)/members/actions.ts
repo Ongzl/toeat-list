@@ -6,7 +6,9 @@ import { requireAdmin } from "@/lib/auth";
 
 export async function addMember(_prev: ActionState, fd: FormData): Promise<ActionState> {
   const { supabase } = await requireAdmin();
-  const email = String(fd.get("email") ?? "").trim().toLowerCase();
+  const email = String(fd.get("email") ?? "")
+    .trim()
+    .toLowerCase();
   const displayName = String(fd.get("display_name") ?? "").trim();
   if (!email || !displayName) return { error: "Enter both a name and an email." };
 

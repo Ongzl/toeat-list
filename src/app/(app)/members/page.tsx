@@ -64,7 +64,9 @@ export default async function Members() {
           className="input"
         />
         <SubmitButton className="btn-primary">Add member</SubmitButton>
-        <p className="text-xs text-muted">They can then sign in with Google or an emailed code using that address.</p>
+        <p className="text-xs text-muted">
+          They can then sign in with Google or an emailed code using that address.
+        </p>
       </ActionForm>
     </main>
   );

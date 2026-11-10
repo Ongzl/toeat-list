@@ -52,7 +52,7 @@ export default async function PlaceDetail({
 
       <section className="card p-4">
         <div className="flex items-start justify-between gap-3">
-          <h1 className="text-xl font-bold leading-tight">{place.name}</h1>
+          <h1 className="text-xl leading-tight font-bold">{place.name}</h1>
           <Stars value={place.avg_rating} count={Number(place.rating_count)} />
         </div>
         <p className="mt-1 text-sm text-muted">
@@ -68,7 +68,7 @@ export default async function PlaceDetail({
           </div>
         )}
         {place.address && <p className="mt-3 text-sm">📍 {place.address}</p>}
-        {place.notes && <p className="mt-3 whitespace-pre-line text-sm">{place.notes}</p>}
+        {place.notes && <p className="mt-3 text-sm whitespace-pre-line">{place.notes}</p>}
 
         {/* Links out only. Edit lives in one fixed spot at the bottom of the page. */}
         <div className={`mt-4 grid gap-2 ${place.source_url ? "grid-cols-2" : "grid-cols-1"}`}>
@@ -76,7 +76,12 @@ export default async function PlaceDetail({
             🗺️ Maps
           </a>
           {place.source_url && (
-            <a href={place.source_url} target="_blank" rel="noopener noreferrer" className="btn-secondary text-sm">
+            <a
+              href={place.source_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-secondary text-sm"
+            >
               🔗 Source
             </a>
           )}

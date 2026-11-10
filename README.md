@@ -68,15 +68,15 @@ After changing `supabase/config.toml` or `supabase/templates/`, restart with `np
 
 Security is enforced in the database (`supabase/migrations/`), not just the UI. Membership is tied to a confirmed sign-in, never just to the email someone claims.
 
-| | Members | Admin | Signed in but not on the list |
-|---|---|---|---|
-| See places, ratings and members' names | ✅ | ✅ | ❌ sees nothing |
-| See members' emails and admin flags | ❌ (only own) | ✅ | ❌ |
-| Add / edit / soft-delete / restore any place | ✅ | ✅ | ❌ |
-| Hard-delete a place | ❌ | ❌ | ❌ |
-| Add / change / remove **own** rating | ✅ | ✅ | ❌ |
-| Change someone else's rating | ❌ | ❌ | ❌ |
-| Add / remove members | ❌ | ✅ (not themselves) | ❌ |
+|                                              | Members       | Admin               | Signed in but not on the list |
+| -------------------------------------------- | ------------- | ------------------- | ----------------------------- |
+| See places, ratings and members' names       | ✅            | ✅                  | ❌ sees nothing               |
+| See members' emails and admin flags          | ❌ (only own) | ✅                  | ❌                            |
+| Add / edit / soft-delete / restore any place | ✅            | ✅                  | ❌                            |
+| Hard-delete a place                          | ❌            | ❌                  | ❌                            |
+| Add / change / remove **own** rating         | ✅            | ✅                  | ❌                            |
+| Change someone else's rating                 | ❌            | ❌                  | ❌                            |
+| Add / remove members                         | ❌            | ✅ (not themselves) | ❌                            |
 
 ## Later (v2 ideas)
 

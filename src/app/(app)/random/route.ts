@@ -14,7 +14,8 @@ export async function GET(request: Request) {
   if (first.error || total === 0) return NextResponse.redirect(new URL(`/${url.search}`, url));
 
   const index = Math.floor(Math.random() * total);
-  const pick = index === 0 ? first.data[0] : (await queryPlaces(supabase, filters).range(index, index)).data?.[0];
+  const pick =
+    index === 0 ? first.data[0] : (await queryPlaces(supabase, filters).range(index, index)).data?.[0];
   if (!pick) return NextResponse.redirect(new URL(`/${url.search}`, url));
 
   const back = new URLSearchParams({ picked: url.search || "?" });

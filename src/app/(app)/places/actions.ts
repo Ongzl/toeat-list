@@ -49,7 +49,11 @@ export async function createPlace(_prev: ActionState, fd: FormData): Promise<Act
   const { name, ...rest } = placeFields(fd);
   if (!name) return { error: "Give the place a name." };
 
-  const { data, error } = await supabase.from("places").insert({ name, ...rest }).select("id").single();
+  const { data, error } = await supabase
+    .from("places")
+    .insert({ name, ...rest })
+    .select("id")
+    .single();
   if (error) return { error: friendlyError(error) };
   refresh();
   redirect(`/places/${data.id}`);
@@ -74,7 +78,10 @@ export async function updatePlace(id: string, _prev: ActionState, fd: FormData):
 
 export async function deletePlace(id: string): Promise<ActionState> {
   const { supabase } = await requireMember();
-  const { error } = await supabase.from("places").update({ deleted_at: new Date().toISOString() }).eq("id", id);
+  const { error } = await supabase
+    .from("places")
+    .update({ deleted_at: new Date().toISOString() })
+    .eq("id", id);
   if (error) return { error: friendlyError(error) };
   refresh(id);
   redirect("/");

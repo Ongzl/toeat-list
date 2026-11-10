@@ -7,7 +7,9 @@ export default function NotFound() {
         🍽️
       </div>
       <h1 className="text-xl font-bold">Nothing here</h1>
-      <p className="text-sm text-muted">This place may have been deleted. Check Deleted places to restore it.</p>
+      <p className="text-sm text-muted">
+        This place may have been deleted. Check Deleted places to restore it.
+      </p>
       <Link href="/" className="btn-primary">
         Back to the list
       </Link>

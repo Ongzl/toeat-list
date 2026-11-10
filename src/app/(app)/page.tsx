@@ -14,7 +14,10 @@ export default async function Home({
 }) {
   const { supabase } = await requireMember();
   const filters = readFilters(await searchParams);
-  const [{ data, error }, options] = await Promise.all([queryPlaces(supabase, filters), loadOptions(supabase)]);
+  const [{ data, error }, options] = await Promise.all([
+    queryPlaces(supabase, filters),
+    loadOptions(supabase),
+  ]);
   if (error) throw error;
   const places = data;
   const filtering = !!filters.q || FILTER_ONLY_KEYS.some((k) => filters[k]);
@@ -47,7 +50,7 @@ export default async function Home({
             <li key={p.id}>
               <Link href={`/places/${p.id}`} className="card block p-4 active:bg-accent-soft">
                 <div className="flex items-start justify-between gap-3">
-                  <h2 className="font-semibold leading-tight">{p.name}</h2>
+                  <h2 className="leading-tight font-semibold">{p.name}</h2>
                   <Stars value={p.avg_rating} count={Number(p.rating_count)} />
                 </div>
                 <p className="mt-1 text-sm text-muted">

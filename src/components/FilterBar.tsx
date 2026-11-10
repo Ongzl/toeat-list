@@ -52,6 +52,7 @@ export default function FilterBar({ areas, cuisines }: Props) {
         <input
           type="search"
           name="q"
+          aria-label="Search places"
           defaultValue={sp.get("q") ?? ""}
           placeholder="Search name, notes…"
           className="input"
@@ -74,7 +75,12 @@ export default function FilterBar({ areas, cuisines }: Props) {
               <option key={a}>{a}</option>
             ))}
           </select>
-          <select name="cuisine" defaultValue={sp.get("cuisine") ?? ""} className="input" aria-label="Cuisine">
+          <select
+            name="cuisine"
+            defaultValue={sp.get("cuisine") ?? ""}
+            className="input"
+            aria-label="Cuisine"
+          >
             <option value="">Any cuisine</option>
             {cuisines.map((c) => (
               <option key={c}>{c}</option>

@@ -54,6 +54,9 @@ export function toQuery(f: Partial<Filters>) {
  * have meaning there (, ( ) " \ : and the * / % wildcards) and collapse whitespace.
  */
 export function searchPattern(q: string): string | null {
-  const cleaned = q.replace(/[,()"\\:*%]/g, " ").replace(/\s+/g, " ").trim();
+  const cleaned = q
+    .replace(/[,()"\\:*%]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
   return cleaned ? `*${cleaned}*` : null;
 }

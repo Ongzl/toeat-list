@@ -11,8 +11,8 @@ export default async function NotInvited() {
       <div className="text-5xl">🔒</div>
       <h1 className="text-xl font-bold">You&apos;re not on the list yet</h1>
       <p className="text-sm text-muted">
-        <strong>{user?.email}</strong> hasn&apos;t been added to the group. Ask the admin to add this
-        email, then sign in again.
+        <strong>{user?.email}</strong> hasn&apos;t been added to the group. Ask the admin to add this email,
+        then sign in again.
       </p>
       <form action="/auth/signout" method="post">
         <button className="btn-secondary w-full">Sign out</button>
