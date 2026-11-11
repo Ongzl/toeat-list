@@ -19,8 +19,13 @@ const url = (fd: FormData, key: string) => {
   return /^https?:\/\//i.test(v) ? v : `https://${v}`;
 };
 
+/** A whole number in [min, max], or null. Rejects "", fractions like "4.5", and anything else. */
+const wholeNumber = (fd: FormData, key: string, min: number, max: number) => {
+  const n = Number(fd.get(key));
+  return Number.isInteger(n) && n >= min && n <= max ? n : null;
+};
+
 function placeFields(fd: FormData) {
-  const price = Number(fd.get("price"));
   const dietary = fd
     .getAll("dietary")
     .filter((d): d is string => typeof d === "string" && (DIETARY_OPTIONS as readonly string[]).includes(d));
@@ -30,7 +35,7 @@ function placeFields(fd: FormData) {
     address: text(fd, "address"),
     maps_url: url(fd, "maps_url"),
     cuisine: text(fd, "cuisine"),
-    price: price >= 1 && price <= 3 ? price : null,
+    price: wholeNumber(fd, "price", 1, 3),
     dietary,
     recommended_by: text(fd, "recommended_by"),
     source_url: url(fd, "source_url"),
@@ -105,11 +110,10 @@ export async function saveVisit(placeId: string, _prev: ActionState, fd: FormDat
     .maybeSingle();
   if (!place) return { error: DELETED };
 
-  const rating = Number(fd.get("rating"));
   const { error } = await supabase.from("visits").upsert({
     place_id: placeId,
     user_id: user.id,
-    rating: rating >= 1 && rating <= 5 ? rating : null,
+    rating: wholeNumber(fd, "rating", 1, 5),
     comment: text(fd, "comment"),
   });
   if (error) return { error: friendlyError(error) };
