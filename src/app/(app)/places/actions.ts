@@ -100,8 +100,14 @@ export async function deletePlace(id: string): Promise<ActionState> {
 
 export async function restorePlace(id: string): Promise<ActionState> {
   const { supabase } = await requireMember();
-  const { error } = await supabase.from("places").update({ deleted_at: null }).eq("id", id);
+  const { data, error } = await supabase
+    .from("places")
+    .update({ deleted_at: null })
+    .eq("id", id)
+    .not("deleted_at", "is", null)
+    .select("id");
   if (error) return { error: friendlyError(error) };
+  if (!data.length) return { error: "This place has already been restored." };
   refresh(id);
   return { ok: true };
 }

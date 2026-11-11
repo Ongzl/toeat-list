@@ -25,8 +25,12 @@ export async function addMember(_prev: ActionState, fd: FormData): Promise<Actio
 
 export async function removeMember(email: string): Promise<ActionState> {
   const { supabase } = await requireAdmin();
-  const { error } = await supabase.from("members").delete().eq("email", email);
+  // RLS silently skips rows the admin may not delete (their own), so check something was removed.
+  const { data, error } = await supabase.from("members").delete().eq("email", email).select("email");
   if (error) return { error: friendlyError(error) };
+  if (!data.length) {
+    return { error: `Couldn't remove ${email}. You can't remove yourself, and they may already be gone.` };
+  }
   revalidatePath("/members");
   return { ok: true };
 }

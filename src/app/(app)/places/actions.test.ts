@@ -158,6 +158,19 @@ describe("deletePlace / restorePlace", () => {
     expect(ctx.calls[0]).toMatchObject({ op: "update", payload: { deleted_at: null } });
   });
 
+  it("only restores a place that is deleted", async () => {
+    ctx.respond = () => ({ data: [{ id: "p1" }] });
+    await restorePlace("p1");
+    expect(ctx.calls[0].filters).toContainEqual(["not", "deleted_at", "is", null]);
+  });
+
+  // Used to return ok:true even when no row changed (already restored from another tab).
+  it("says so when there was nothing to restore", async () => {
+    ctx.respond = () => ({ data: [] });
+    expect((await restorePlace("p1"))?.error).toMatch(/already been restored/);
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
   it("reports a failed restore", async () => {
     ctx.respond = () => ({ error: { message: "x" } });
     expect((await restorePlace("p1"))?.error).toBeTruthy();
