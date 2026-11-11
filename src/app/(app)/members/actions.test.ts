@@ -83,4 +83,13 @@ describe("removeMember", () => {
     ctx.respond = () => ({ error: { code: "42501", message: "denied" } });
     expect((await removeMember("sam@example.test"))?.error).toMatch(/permission/);
   });
+
+  // The database silently skips rows the admin may not delete (their own) or that are already gone;
+  // this used to come back as ok:true.
+  it("says so when nobody was removed", async () => {
+    ctx.respond = () => ({ data: [] });
+    const res = await removeMember("admin@example.test");
+    expect(res?.error).toMatch(/Couldn't remove admin@example.test/);
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
 });
