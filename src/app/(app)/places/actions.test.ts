@@ -132,6 +132,21 @@ describe("deletePlace / restorePlace", () => {
     expect(ctx.calls[0]).toMatchObject({ op: "update", payload: { deleted_at: expect.any(String) } });
   });
 
+  it("only deletes a place that isn't already deleted", async () => {
+    ctx.respond = () => ({ data: [{ id: "p1" }] });
+    await redirectOf(deletePlace("p1"));
+    expect(ctx.calls[0].filters).toContainEqual(["is", "deleted_at", null]);
+  });
+
+  // From a stale tab, deleting an already-deleted place used to overwrite its deleted_at (moving it
+  // in Deleted places) and report success.
+  it("leaves an already-deleted place alone and says so", async () => {
+    ctx.respond = () => ({ data: [] });
+    const res = await deletePlace("p1");
+    expect(res?.error).toMatch(/already deleted/);
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
   it("reports a failed delete", async () => {
     ctx.respond = () => ({ error: { message: "network" } });
     expect((await deletePlace("p1"))?.error).toMatch(/connection/);

@@ -83,11 +83,17 @@ export async function updatePlace(id: string, _prev: ActionState, fd: FormData):
 
 export async function deletePlace(id: string): Promise<ActionState> {
   const { supabase } = await requireMember();
-  const { error } = await supabase
+  // Only stamp places that aren't deleted yet, so a stale tab can't overwrite the original
+  // deletion time (which orders Deleted places).
+  const { data, error } = await supabase
     .from("places")
     .update({ deleted_at: new Date().toISOString() })
-    .eq("id", id);
+    .eq("id", id)
+    .is("deleted_at", null)
+    .select("id");
   if (error) return { error: friendlyError(error) };
+  if (!data.length)
+    return { error: "This place was already deleted. You can restore it from Deleted places." };
   refresh(id);
   redirect("/");
 }
